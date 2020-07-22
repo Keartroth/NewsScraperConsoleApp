@@ -16,3 +16,4 @@ C:\Users\mecar\workspace\server side\Personal\ScrapperTest\ScrapperTest\obj\Debu
 C:\Users\mecar\workspace\server side\Personal\ScrapperTest\ScrapperTest\obj\Debug\netcoreapp3.1\ScrapperTest.dll
 C:\Users\mecar\workspace\server side\Personal\ScrapperTest\ScrapperTest\obj\Debug\netcoreapp3.1\ScrapperTest.pdb
 C:\Users\mecar\workspace\server side\Personal\ScrapperTest\ScrapperTest\obj\Debug\netcoreapp3.1\ScrapperTest.genruntimeconfig.cache
+C:\Users\mecar\workspace\server side\Personal\ScrapperTest\ScrapperTest\obj\Debug\netcoreapp3.1\ScrapperTest.csprojAssemblyReference.cache
