@@ -1,13 +1,12 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using System;
-using System.IO;
 using System.Net;
-using System.Text;
 using System.Diagnostics;
 using Cloudmersive.APIClient.NET.NLP.Api;
 using Cloudmersive.APIClient.NET.NLP.Client;
 using Cloudmersive.APIClient.NET.NLP.Model;
+using System.Net.Http;
 
 namespace ScrapperTest
 {
@@ -27,113 +26,100 @@ namespace ScrapperTest
             //Source to be parsed
             var FoxSourceTwo = "https://www.foxnews.com/world/chinese-hackers-charged-steal-usa-coronavirus-research";
 
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(FoxSource);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            string result = null;
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            HttpClient client = new HttpClient();
+            using (HttpResponseMessage response = client.GetAsync(CNNSource).Result)
             {
-                Stream receiveStream = response.GetResponseStream();
-                StreamReader readStream = null;
-
-                if (String.IsNullOrWhiteSpace(response.CharacterSet))
+                using (HttpContent content = response.Content)
                 {
-                    readStream = new StreamReader(receiveStream);
+                    result = content.ReadAsStringAsync().Result;
                 }
-                else
-                {
-                    readStream = new StreamReader(receiveStream, Encoding.GetEncoding(response.CharacterSet));
-                }
-
-                string data = readStream.ReadToEnd();
-
-                var parser = new HtmlParser();
-
-                var document = parser.ParseDocument(data);
-
-                string concat = null;
-
-                if (document.Title.Contains("CNN"))
-                {
-                    var query = document.GetElementsByClassName("zn-body__paragraph");
-
-                    foreach (var node in query)
-                    {
-                        // remove HTML
-                        foreach (var element in node.QuerySelectorAll("cite, a, strong, em, h1, h2, h3, h4, h5, h6, i"))
-                        {
-                            if (element.HasTextNodes())
-                            {
-                                element.OuterHtml = element.TextContent;
-                            }
-                            else
-                            {
-                                element.Remove();
-                            }
-                        }
-
-                        var decodedHtml = WebUtility.HtmlDecode(node.InnerHtml);
-
-                        // do something with node.InnerHtml
-                        if (query.Index(node) == 0)
-                        {
-                            concat = decodedHtml;
-                        }
-                        else
-                        {
-                            concat = concat + " " + decodedHtml;
-                        }
-                    }
-                }
-                else if (document.Title.Contains("Fox"))
-                {
-                    var query = document.GetElementsByTagName("p");
-
-                    foreach (var node in query)
-                    {
-                        if (query.Index(node) == 0 || query.Index(node) == query.Length - 4 || query.Index(node) == query.Length - 3 || query.Index(node) == query.Length - 2 || query.Index(node) == query.Length - 1 || query.Index(node) == query.Length)
-                        {
-                            node.Remove();
-                        }
-                        else
-                        {
-                            // remove HTML
-                            foreach (var element in node.QuerySelectorAll("cite, a, strong, em, h1, h2, h3, h4, h5, h6, i"))
-                            {
-                                if (element.HasTextNodes())
-                                {
-                                    element.OuterHtml = element.TextContent;
-                                }
-                                else
-                                {
-                                    element.Remove();
-                                }
-                            }
-
-                            var decodedHtml = WebUtility.HtmlDecode(node.InnerHtml);
-
-                            // do something with node.InnerHtml
-                            if (query.Index(node) == 0)
-                            {
-                                concat = decodedHtml;
-                            }
-                            else
-                            {
-                                concat = concat + " " + decodedHtml;
-                            }
-                        }
-                    }
-                }
-
-                concat = concat.Replace('"', ' ');
-
-                Console.WriteLine("Output of query:");
-
-                CloudmersiveSubjectivityAnalysis(concat);
-                //CloudmersiveSentimentAnalysis(concat);
-                
-                response.Close();
-                readStream.Close();
             }
+
+             var parser = new HtmlParser();
+
+             var document = parser.ParseDocument(result);
+
+             string concat = null;
+
+             if (document.Title.Contains("CNN"))
+             {
+                 var query = document.GetElementsByClassName("zn-body__paragraph");
+
+                 foreach (var node in query)
+                 {
+                     // remove HTML
+                     foreach (var element in node.QuerySelectorAll("cite, a, strong, em, h1, h2, h3, h4, h5, h6, i"))
+                     {
+                         if (element.HasTextNodes())
+                         {
+                             element.OuterHtml = element.TextContent;
+                         }
+                         else
+                         {
+                             element.Remove();
+                         }
+                     }
+
+                     var decodedHtml = WebUtility.HtmlDecode(node.InnerHtml);
+
+                     // do something with node.InnerHtml
+                     if (query.Index(node) == 0)
+                     {
+                         concat = decodedHtml;
+                     }
+                     else
+                     {
+                         concat = concat + " " + decodedHtml;
+                     }
+                 }
+             }
+             else if (document.Title.Contains("Fox"))
+             {
+                 var query = document.GetElementsByTagName("p");
+
+                 foreach (var node in query)
+                 {
+                     if (query.Index(node) == 0 || query.Index(node) == query.Length - 4 || query.Index(node) == query.Length - 3 || query.Index(node) == query.Length - 2 || query.Index(node) == query.Length - 1)
+                     {
+                         node.Remove();
+                     }
+                     else
+                     {
+                         // remove HTML
+                         foreach (var element in node.QuerySelectorAll("cite, a, strong, em, h1, h2, h3, h4, h5, h6, i"))
+                         {
+                             if (element.HasTextNodes())
+                             {
+                                 element.OuterHtml = element.TextContent;
+                             }
+                             else
+                             {
+                                 element.Remove();
+                             }
+                         }
+
+                         var decodedHtml = WebUtility.HtmlDecode(node.InnerHtml);
+
+                         // do something with node.InnerHtml
+                         if (query.Index(node) == 0)
+                         {
+                             concat = decodedHtml;
+                         }
+                         else
+                         {
+                             concat = concat + " " + decodedHtml;
+                         }
+                     }
+                 }
+             }
+             concat = concat.Replace('"', ' ');
+
+             Console.WriteLine("Output of query:");
+             
+             CloudmersiveSubjectivityAnalysis(concat);
+             //CloudmersiveSentimentAnalysis(concat);
         }
 
         private static void CloudmersiveSubjectivityAnalysis(string criteria)
