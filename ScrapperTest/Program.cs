@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System;
 using System.Diagnostics;
 using Cloudmersive.APIClient.NET.NLP.Api;
 using Cloudmersive.APIClient.NET.NLP.Client;
@@ -128,13 +127,36 @@ namespace ScrapperTest
                 concat = concat.Replace('"', ' ');
 
                 Console.WriteLine("Output of query:");
-                cloudCall(concat);
+
+                CloudmersiveSubjectivityAnalysis(concat);
+                //CloudmersiveSentimentAnalysis(concat);
+                
                 response.Close();
                 readStream.Close();
             }
         }
 
-        private static void cloudCall(string criteria)
+        private static void CloudmersiveSubjectivityAnalysis(string criteria)
+        {
+            // Configure API key authorization: Apikey
+            Configuration.Default.AddApiKey("Apikey", "YOUR_API_KEY"); // Get an API key at, https://account.cloudmersive.com/
+
+            var apiInstance = new AnalyticsApi();
+            var input = new SubjectivityAnalysisRequest(criteria); // SentimentAnalysisRequest | Input sentiment analysis request
+
+            try
+            {
+                // Perform Sentiment Analysis and Classification on Text
+                SubjectivityAnalysisResponse result = apiInstance.AnalyticsSubjectivity(input);
+                Debug.WriteLine(result);
+            }
+            catch (Exception e)
+            {
+                Debug.Print("Exception when calling AnalyticsApi.AnalyticsSentiment: " + e.Message);
+            }
+        }
+
+        private static void CloudmersiveSentimentAnalysis(string criteria)
         {
             // Configure API key authorization: Apikey
             Configuration.Default.AddApiKey("Apikey", "YOUR_API_KEY"); // Get an API key at, https://account.cloudmersive.com/
